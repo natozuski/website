@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="pictures/premierball.png">
+  <link rel="apple-touch-icon" href="pictures/premierball.png">
+  <link rel="stylesheet" href="css/cube.css" type="text/css">
+  <link rel="stylesheet" href="css/style.css" type="text/css">
+  <title>Art Projects — Link Carousel</title>
+  <style>
+    @keyframes pageFade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    :root{
+      --bg:#0b0f17;
+      --panel:#111827;
+      --panel2:#0f172a;
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --accent:#60a5fa;
+      --accent2:#22c55e;
+      --border: rgba(148,163,184,.22);
+      --shadow: 0 12px 40px rgba(0,0,0,.45);
+      --radius: 18px;
+      --gap: 18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      animation: pageFade 0.4s ease-out both;
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1100px 600px at 10% 10%, rgba(96,165,250,.18), transparent 55%),
+                  radial-gradient(900px 600px at 90% 10%, rgba(34,197,94,.14), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      min-height:100dvh;
+      display:flex;
+      align-items: center;
+      justify-content:center;
+      padding:28px 16px;
+    }
+    .wrap{
+      width:min(1100px, 100%);
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+    header{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+      padding:18px 18px 0 18px;
+    }
+    h1{
+      margin:0;
+      font-size: clamp(20px, 2.2vw, 30px);
+      letter-spacing:.2px;
+    }
+    .subtitle{
+      margin:6px 0 0 0;
+      color:var(--muted);
+      font-size: 14px;
+      line-height:1.4;
+    }
+    .toolbar{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      padding-bottom:4px;
+    }
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(17,24,39,.9), rgba(15,23,42,.75));
+      color:var(--text);
+      padding:10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,.25);
+      font-weight:600;
+      font-size:14px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+    }
+    .btn:hover{ border-color: rgba(96,165,250,.55); }
+    .btn:active{ transform: translateY(1px); }
+    .btn:focus-visible{
+      outline: 3px solid rgba(96,165,250,.35);
+      outline-offset: 2px;
+    }
+    .pill{
+      padding:8px 10px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      color:var(--muted);
+      font-size:13px;
+      background: rgba(15,23,42,.45);
+    }
+
+    .shell{
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(17,24,39,.8), rgba(15,23,42,.55));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .viewport{
+      position:relative;
+      padding: 18px;
+    }
+
+    .track{
+      display:flex;
+      gap: var(--gap);
+      overflow-x:auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior:smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; /* firefox */
+      padding-bottom: 6px;
+    }
+    .track::-webkit-scrollbar{ display:none; } /* chrome */
+
+    .card{
+      flex: 0 0 86%;
+      max-width: 86%;
+      scroll-snap-align: center;
+      border:1px solid rgba(148,163,184,.18);
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(17,24,39,.95), rgba(15,23,42,.85));
+      box-shadow: 0 8px 26px rgba(0,0,0,.35);
+      padding: 16px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      position:relative;
+      overflow:hidden;
+    }
+    /* larger screens show more of the next/prev card */
+    @media (min-width: 760px){
+      .card{ flex-basis: 56%; max-width: 56%; padding: 18px; }
+    }
+    @media (min-width: 1020px){
+      .card{ flex-basis: 42%; max-width: 42%; }
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      color:rgba(229,231,235,.9);
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.22);
+      background: rgba(2,6,23,.35);
+      width:max-content;
+    }
+    .dot{
+      width:8px; height:8px; border-radius:50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(96,165,250,.18);
+    }
+
+    .titleRow{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+    }
+    a.project{
+      color: var(--text);
+      text-decoration:none;
+      font-weight:800;
+      font-size: 18px;
+      line-height:1.2;
+    }
+    a.project:hover{ color: var(--accent); text-decoration: underline; text-underline-offset: 4px; }
+
+    .desc{
+      margin:0;
+      color: var(--muted);
+      line-height:1.5;
+      font-size:14px;
+    }
+
+    .meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 4px;
+    }
+    .tag{
+      font-size:12px;
+      color: rgba(229,231,235,.92);
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.2);
+      background: rgba(2,6,23,.25);
+    }
+
+    .controls{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 0 18px 16px 18px;
+    }
+    .dots{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:center;
+      align-items:center;
+    }
+    .dotBtn{
+      width:10px; height:10px;
+      border-radius:50%;
+      border:1px solid rgba(148,163,184,.5);
+      background: rgba(148,163,184,.2);
+      cursor:pointer;
+      padding:0;
+    }
+    .dotBtn[aria-current="true"]{
+      background: var(--accent);
+      border-color: rgba(96,165,250,.9);
+      box-shadow: 0 0 0 5px rgba(96,165,250,.18);
+    }
+
+    footer{
+      color: var(--muted);
+      font-size: 12px;
+      padding: 0 18px 18px 18px;
+      line-height:1.5;
+    }
+    kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 7px;
+      border: 1px solid rgba(148,163,184,.25);
+      background: rgba(2,6,23,.35);
+      color: rgba(229,231,235,.95);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="shell">
+      <header>
+        <div>
+          <h1>Art Projects</h1>
+          <p class="subtitle">A simple carousel of project links — each card highlights one project with a short description.</p>
+        </div>
+        <div class="toolbar">
+          <span class="pill" id="counter">1 / 18</span>
+          <button class="btn" id="prevBtn" type="button" aria-label="Previous project">
+            ◀ <span>Prev</span>
+          </button>
+          <button class="btn" id="nextBtn" type="button" aria-label="Next project">
+            <span>Next</span> ▶
+          </button>
+        </div>
+      </header>
+
+      <div class="viewport">
+        <div class="track" id="track" aria-label="Project carousel" tabindex="0">
+          <!-- Nathaniel projects -->
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Featured</div>
+            <div class="titleRow">
+              <!-- TODO: replace href with your Bandcamp URL -->
+              <a class="project" href="https://nathanielozuski.com/music" target="_blank" rel="noopener noreferrer">
+                Music, Bandcamp
+              </a>
+              <span class="tag">Music</span>
+            </div>
+            <p class="desc">A complete archival record of all music released by Nathaniel. This project functions as a comprehensive historical catalogue, preserving the full scope of Nathaniel’s musical output without curation, prioritization, or algorithmic filtering.</p>
+            <div class="meta">
+              <span class="tag">Archive</span><span class="tag">Music</span><span class="tag">History</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <!-- TODO: replace href with your Spotify artist/profile URL -->
+              <a class="project" href="https://open.spotify.com/album/5yMOAaPVd5xsfN44i6CvHL" target="_blank" rel="noopener noreferrer">
+                Music, Spotify
+              </a>
+              <span class="tag">Music</span>
+            </div>
+            <p class="desc">A curated collection of Nathaniel’s current musical releases. This project represents Nathaniel’s present-facing musical identity, optimized for public discovery and ongoing relevance rather than historical completeness.</p>
+            <div class="meta">
+              <span class="tag">Music</span><span class="tag">Curation</span><span class="tag">Public</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <!-- TODO: replace href with your Manifesto WordPress URL -->
+              <a class="project" href="https://nathanielozuski.com/manifesto" target="_blank" rel="noopener noreferrer">
+                Manifesto
+              </a>
+              <span class="tag">Politics</span>
+            </div>
+            <p class="desc">A long-form political manifesto authored by Nathaniel, presented in blog format. This project articulates a coherent ideological framework, documenting Nathaniel’s political philosophy as an evolving, publicly accessible body of work.</p>
+            <div class="meta">
+              <span class="tag">Politics</span><span class="tag">Ideology</span><span class="tag">Theory</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <!-- TODO: replace href with Insider Mag URL -->
+              <a class="project" href="https://insider38.wordpress.com/" target="_blank" rel="noopener noreferrer">
+                Insider Mag
+              </a>
+              <span class="tag">Journalism</span>
+            </div>
+            <p class="desc">An independent world news editorial platform operated by Nathaniel. This project reports and contextualizes global events outside traditional legacy media institutions, offering original framing and analysis as an alternative news source.</p>
+            <div class="meta">
+              <span class="tag">Journalism</span><span class="tag">World-news</span><span class="tag">Analysis</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <!-- TODO: replace href with Trillyanese Wiki URL -->
+              <a class="project" href="https://trillyanese.fandom.com/wiki/Home" target="_blank" rel="noopener noreferrer">
+                Trillyanese Wiki
+              </a>
+              <span class="tag">Language</span>
+            </div>
+            <p class="desc">A linguistic research project developed by Nathaniel, focused on constructing a novel system of human communication. The project explores non-standard verbal structures and alternative modes of meaning exchange distinct from conventional spoken language.</p>
+            <div class="meta">
+              <span class="tag">Language</span><span class="tag">Communication</span><span class="tag">Research</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <!-- TODO: replace href with Daily Telegram URL -->
+              <a class="project" href="https://blog.nathanielozuski.com/" target="_blank" rel="noopener noreferrer">
+                Daily Telegram
+              </a>
+              <span class="tag">Art</span>
+            </div>
+            <p class="desc">A personal publishing platform maintained by Nathaniel, combining written art, visual art, and reflective commentary. This project serves as an ongoing creative log, capturing experimental works and ideas in an unfiltered, immediate format.</p>
+            <div class="meta">
+              <span class="tag">Personal</span><span class="tag">Art</span><span class="tag">Publishing</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <!-- TODO: replace href with DG Finance URL -->
+              <a class="project" href="https://credit.nathanielozuski.com/" target="_blank" rel="noopener noreferrer">
+                DG Finance
+              </a>
+              <span class="tag">Finance</span>
+            </div>
+            <p class="desc">A private financial entity established by Nathaniel to fund and sustain his broader project ecosystem. This project provides economic infrastructure, enabling operational independence across creative and research initiatives.</p>
+            <div class="meta">
+              <span class="tag">Finance</span><span class="tag">Infrastructure</span><span class="tag">Funding</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <!-- TODO: replace href with Physis Pistidos Uni URL -->
+              <a class="project" href="https://uni.nathanielozuski.com/" target="_blank" rel="noopener noreferrer">
+                Physis Pistidos Uni
+              </a>
+              <span class="tag">Research</span>
+            </div>
+            <p class="desc">An online metaphysical research institution founded by Nathaniel. This project functions as a central academic framework for conducting, organizing, and disseminating research that underpins Nathaniel’s wider body of work.</p>
+            <div class="meta">
+              <span class="tag">Metaphysics</span><span class="tag">Education</span><span class="tag">Research</span>
+            </div>
+          </article>
+
+    <!-- Unused demo cards (kept for later, but commented out)-->
+      <!--
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <a class="project" href="https://example.com/project/ink-maps" target="_blank" rel="noopener noreferrer">
+                Ink Maps
+              </a>
+              <span class="tag">Sketchbook</span>
+            </div>
+            <p class="desc">Abstract “map” drawings made with ink spills, then refined into contour-like routes.</p>
+            <div class="meta">
+              <span class="tag">Process</span><span class="tag">Ink</span><span class="tag">Experimental</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <a class="project" href="https://example.com/project/mono-portraits" target="_blank" rel="noopener noreferrer">
+                Mono Portrait Studies
+              </a>
+              <span class="tag">Study</span>
+            </div>
+            <p class="desc">Portrait studies with limited values — aiming for mood through restraint and texture.</p>
+            <div class="meta">
+              <span class="tag">Charcoal</span><span class="tag">Faces</span><span class="tag">Lighting</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <a class="project" href="https://example.com/project/glitch-collage" target="_blank" rel="noopener noreferrer">
+                Glitch Collage Pack
+              </a>
+              <span class="tag">Digital</span>
+            </div>
+            <p class="desc">A collage kit built from scans, distortion passes, and accidental compression artifacts.</p>
+            <div class="meta">
+              <span class="tag">Collage</span><span class="tag">Textures</span><span class="tag">Pack</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <a class="project" href="https://example.com/project/handmade-zine" target="_blank" rel="noopener noreferrer">
+                Handmade Zine #1
+              </a>
+              <span class="tag">Zine</span>
+            </div>
+            <p class="desc">Stapled mini-zine: micro-stories, rough sketches, and visual poems.</p>
+            <div class="meta">
+              <span class="tag">Print</span><span class="tag">Narrative</span><span class="tag">DIY</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <a class="project" href="https://example.com/project/album-covers" target="_blank" rel="noopener noreferrer">
+                Album Cover Concepts
+              </a>
+              <span class="tag">Design</span>
+            </div>
+            <p class="desc">A concept set exploring bold type systems and surreal photo manipulation.</p>
+            <div class="meta">
+              <span class="tag">Branding</span><span class="tag">Layout</span><span class="tag">Concept</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <a class="project" href="https://example.com/project/mural-mockups" target="_blank" rel="noopener noreferrer">
+                Mural Mockups
+              </a>
+              <span class="tag">Large scale</span>
+            </div>
+            <p class="desc">Mocking up murals in real environments to test composition, flow, and readability.</p>
+            <div class="meta">
+              <span class="tag">Walls</span><span class="tag">Public</span><span class="tag">Mockups</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <a class="project" href="https://example.com/project/3d-stickers" target="_blank" rel="noopener noreferrer">
+                3D Sticker Renders
+              </a>
+              <span class="tag">3D</span>
+            </div>
+            <p class="desc">Glossy sticker-style renders with playful lighting, reflections, and bold shapes.</p>
+            <div class="meta">
+              <span class="tag">Render</span><span class="tag">Material</span><span class="tag">Fun</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <a class="project" href="https://example.com/project/gouache-landscapes" target="_blank" rel="noopener noreferrer">
+                Gouache Landscapes
+              </a>
+              <span class="tag">Paint</span>
+            </div>
+            <p class="desc">Small landscapes focused on color temperature shifts and simplified silhouettes.</p>
+            <div class="meta">
+              <span class="tag">Gouache</span><span class="tag">Color</span><span class="tag">Studies</span>
+            </div>
+          </article>
+      -->
+    <!-- Unused demo cards (kept for later, but commented out)-->
+
+    <!-- spare articles -->
+      <!--
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <a class="project" href="https://example.com/project/animated-loops" target="_blank" rel="noopener noreferrer">
+                Animated Loop Set
+              </a>
+              <span class="tag">Motion</span>
+            </div>
+            <p class="desc">Short looping animations designed for socials: calm, hypnotic, and rhythmic.</p>
+            <div class="meta">
+              <span class="tag">GIF</span><span class="tag">Timing</span><span class="tag">Loop</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <a class="project" href="https://example.com/project/woodcut-experiments" target="_blank" rel="noopener noreferrer">
+                Woodcut Experiments
+              </a>
+              <span class="tag">Printmaking</span>
+            </div>
+            <p class="desc">Carved marks + heavy contrast — exploring “happy accidents” in the print process.</p>
+            <div class="meta">
+              <span class="tag">Relief</span><span class="tag">Texture</span><span class="tag">Contrast</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <a class="project" href="https://example.com/project/type-specimens" target="_blank" rel="noopener noreferrer">
+                Type Specimens
+              </a>
+              <span class="tag">Typography</span>
+            </div>
+            <p class="desc">A collection of specimen layouts celebrating letterforms as graphic shape.</p>
+            <div class="meta">
+              <span class="tag">Grid</span><span class="tag">Kerning</span><span class="tag">Posters</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <a class="project" href="https://example.com/project/character-sheets" target="_blank" rel="noopener noreferrer">
+                Character Sheet Vault
+              </a>
+              <span class="tag">Characters</span>
+            </div>
+            <p class="desc">Silhouettes, expressions, and outfit iterations — all the “in-between” design work.</p>
+            <div class="meta">
+              <span class="tag">Sketches</span><span class="tag">Worldbuilding</span><span class="tag">Iterate</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <a class="project" href="https://example.com/project/sound-reactive" target="_blank" rel="noopener noreferrer">
+                Sound-Reactive Visuals
+              </a>
+              <span class="tag">Interactive</span>
+            </div>
+            <p class="desc">Generative visuals that respond to audio — beat detection, trails, and particles.</p>
+            <div class="meta">
+              <span class="tag">Generative</span><span class="tag">Audio</span><span class="tag">Realtime</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <a class="project" href="https://example.com/project/logo-graveyard" target="_blank" rel="noopener noreferrer">
+                Logo Graveyard
+              </a>
+              <span class="tag">Archive</span>
+            </div>
+            <p class="desc">Rejected and unused logo explorations — a museum of almost-ideas.</p>
+            <div class="meta">
+              <span class="tag">Marks</span><span class="tag">Iterations</span><span class="tag">Brand</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <a class="project" href="https://example.com/project/painted-signs" target="_blank" rel="noopener noreferrer">
+                Painted Signs
+              </a>
+              <span class="tag">Lettering</span>
+            </div>
+            <p class="desc">Hand-painted sign practice: brush control, spacing, and vintage-inspired palettes.</p>
+            <div class="meta">
+              <span class="tag">Brush</span><span class="tag">Signwriting</span><span class="tag">Practice</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <a class="project" href="https://example.com/project/scanned-textures" target="_blank" rel="noopener noreferrer">
+                Scanned Texture Library
+              </a>
+              <span class="tag">Assets</span>
+            </div>
+            <p class="desc">High-res scans of paper, fabric, paint, and found materials for layering into work.</p>
+            <div class="meta">
+              <span class="tag">Scans</span><span class="tag">素材</span><span class="tag">Library</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="badge"><span class="dot"></span> Link</div>
+            <div class="titleRow">
+              <a class="project" href="https://example.com/project/commission-gallery" target="_blank" rel="noopener noreferrer">
+                Commission Gallery
+              </a>
+              <span class="tag">Client</span>
+            </div>
+            <p class="desc">A curated selection of client pieces, with notes on constraints and solutions.</p>
+            <div class="meta">
+              <span class="tag">Gallery</span><span class="tag">Before/After</span><span class="tag">Notes</span>
+            </div>
+          </article>
+      -->
+    <!-- spare articles -->
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="dots" id="dots" aria-label="Carousel pagination"></div>
+        <div class="pill">Tip: use <kbd>←</kbd> / <kbd>→</kbd> while the carousel is focused</div>
+      </div>
+
+      <footer>
+        A collection of ongoing and archived art projects.<br />
+        Links open in new tabs.
+      </footer>
+    </div>
+  </div>
+
+ <script>
+  (function () {
+    const track = document.getElementById("track");
+    const cards = Array.from(track.querySelectorAll(".card"));
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const counter = document.getElementById("counter");
+    const dotsWrap = document.getElementById("dots");
+
+    // Build dots
+    const dots = cards.map((_, i) => {
+      const b = document.createElement("button");
+      b.className = "dotBtn";
+      b.type = "button";
+      b.setAttribute("aria-label", `Go to project ${i + 1}`);
+      b.addEventListener("click", () => scrollToIndex(i));
+      dotsWrap.appendChild(b);
+      return b;
+    });
+
+    const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+
+    function targetScrollLeftForIndex(i) {
+      const card = cards[i];
+      // Center the card in the viewport
+      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+      const viewportCenter = track.clientWidth / 2;
+      return cardCenter - viewportCenter;
+    }
+
+    function scrollToIndex(i) {
+      i = clamp(i, 0, cards.length - 1);
+      const x = targetScrollLeftForIndex(i);
+      track.scrollTo({ left: x, behavior: "smooth" });
+      window.setTimeout(updateUI, 140);
+    }
+
+    function getActiveIndex() {
+      const viewportCenter = track.scrollLeft + track.clientWidth / 2;
+
+      let best = 0;
+      let bestDist = Infinity;
+
+      cards.forEach((card, i) => {
+        const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+        const dist = Math.abs(cardCenter - viewportCenter);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = i;
+        }
+      });
+
+      return best;
+    }
+
+    function updateUI() {
+      const i = getActiveIndex();
+      counter.textContent = `${i + 1} / ${cards.length}`;
+
+      dots.forEach((d, idx) => {
+        if (idx === i) d.setAttribute("aria-current", "true");
+        else d.removeAttribute("aria-current");
+      });
+
+      prevBtn.disabled = i === 0;
+      nextBtn.disabled = i === cards.length - 1;
+
+      prevBtn.style.opacity = prevBtn.disabled ? 0.55 : 1;
+      nextBtn.style.opacity = nextBtn.disabled ? 0.55 : 1;
+    }
+
+    prevBtn.addEventListener("click", () => scrollToIndex(getActiveIndex() - 1));
+    nextBtn.addEventListener("click", () => scrollToIndex(getActiveIndex() + 1));
+
+    // Keep UI in sync while user scrolls/swipes
+    let raf = null;
+    track.addEventListener("scroll", () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(updateUI);
+    });
+
+    // Make arrow keys work even when the carousel isn't focused
+    document.addEventListener("keydown", (e) => {
+      const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
+      const typing =
+        tag === "input" || tag === "textarea" || e.target.isContentEditable;
+
+      if (typing) return;
+
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        scrollToIndex(getActiveIndex() - 1);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        scrollToIndex(getActiveIndex() + 1);
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      // Re-center current item after resize
+      scrollToIndex(getActiveIndex());
+      window.setTimeout(updateUI, 180);
+    });
+
+    // Initial state
+    updateUI();
+  })();
+ </script>
+
+</body>
+</html>
