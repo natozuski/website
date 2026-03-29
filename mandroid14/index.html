@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Phrase Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: #f4f4f4;
+    }
+
+    .container {
+      text-align: center;
+      width: 320px;
+    }
+
+    .avatar {
+      width: 150px;
+      height: 150px;
+      background: #ddd;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #chatHistory {
+      background: white;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      height: 120px;
+      overflow: hidden;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .user { color: #333; }
+    .bot { color: #0077cc; }
+
+    #inputBox {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="avatar">
+    <img src="Android17m.webp" alt="Bot">
+  </div>
+
+  <div id="chatHistory"></div>
+
+  <input id="inputBox" type="text" placeholder="Type here and press Enter..." />
+</div>
+
+<script src="phrases.js"></script>
+
+<script>
+  let index = 0;
+  let history = []; // stores last messages
+
+  const inputBox = document.getElementById("inputBox");
+  const chatHistory = document.getElementById("chatHistory");
+
+  function renderHistory() {
+    chatHistory.innerHTML = history
+      .slice(-6) // show last ~3 exchanges (user+bot)
+      .map(msg => `<div class="${msg.type}">${msg.text}</div>`)
+      .join("");
+  }
+
+  inputBox.addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+      if (!window.phrases || window.phrases.length === 0) return;
+
+      const userText = inputBox.value.trim();
+      if (!userText) return;
+
+      // add user message
+      history.push({ type: "user", text: "> " + userText });
+
+      // bot response
+      const botText = window.phrases[index];
+      history.push({ type: "bot", text: botText });
+
+      index++;
+      if (index >= window.phrases.length) index = 0;
+
+      renderHistory();
+      inputBox.value = "";
+    }
+  });
+</script>
+
+</body>
+</html>
