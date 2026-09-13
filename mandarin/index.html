@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pinyin to Hanzi Input</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #f5f5f5;
+  }
+  h1 { font-size: 18px; color: #333; }
+
+  .box {
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    background: white;
+    min-height: 60px;
+    font-size: 18px;
+  }
+
+  #optionsBox { background: #fafafa; }
+
+  #displayBox {
+    min-height: 80px;
+    font-size: 22px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+  }
+
+  #inputBox {
+    width: 100%;
+    font-size: 18px;
+    padding: 12px;
+    border: 2px solid #4a90e2;
+    border-radius: 8px;
+    outline: none;
+  }
+  #inputBox:focus { border-color: #357ab8; }
+
+  .option {
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  .option:hover, .option.selected { background: #e3f0ff; }
+  .option .num {
+    display: inline-block;
+    width: 24px;
+    color: #888;
+    font-weight: bold;
+  }
+  .option .hanzi {
+    font-size: 20px;
+    margin-right: 12px;
+  }
+  .option .english {
+    color: #666;
+    font-size: 14px;
+  }
+
+  .status {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 6px;
+  }
+
+  #deleteBtn {
+    margin-bottom: 12px;
+    padding: 8px 14px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  #deleteBtn:hover { background: #f0f0f0; }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<h1>Toneless Pinyin → Hanzi</h1>
+
+<div class="status" id="status">Type pinyin, press Enter to see options.</div>
+
+<div id="optionsBox" class="box hidden"></div>
+<div id="displayBox" class="box"></div>
+<button id="deleteBtn">← Delete last word</button>
+<input
+  id="inputBox"
+  type="text"
+  placeholder="Type toneless pinyin (e.g. 'wo')..."
+  autocomplete="off"
+  autofocus
+/>
+
+<!-- ===== Pick ONE of these three lines ===== -->
+<script src="dictionary.js"></script>
+<!-- <script src="test-dictionary.js"></script> -->
+<!-- <script src="corpus-dictionary.js"></script> -->
+
+<script>
+// Pull the dictionary from whichever file was loaded above.
+const DICTIONARY = window.DICTIONARY;
+
+// ---------- Punctuation ----------
+const PUNCTUATION = new Set([
+  ",", ".", "?", "!", ";", ":",
+  "，", "。", "？", "！", "；", "：",
+  "、", "…", "—", "「", "」", "《", "》"
+]);
+
+function isPunctuation(str) {
+  return PUNCTUATION.has(str);
+}
+
+// ---------- State ----------
+let mode = "input";
+let currentOptions = [];
+let tokens = [];
+
+// ---------- Elements ----------
+const inputBox = document.getElementById("inputBox");
+const optionsBox = document.getElementById("optionsBox");
+const displayBox = document.getElementById("displayBox");
+const statusEl = document.getElementById("status");
+const deleteBtn = document.getElementById("deleteBtn");
+
+// ---------- Render ----------
+function renderOptions() {
+  optionsBox.innerHTML = "";
+  if (currentOptions.length === 0) {
+    optionsBox.classList.add("hidden");
+    return;
+  }
+  optionsBox.classList.remove("hidden");
+  currentOptions.forEach((opt, i) => {
+    const div = document.createElement("div");
+    div.className = "option";
+    div.innerHTML = `
+      <span class="num">${i + 1}.</span>
+      <span class="hanzi">${opt.hanzi}</span>
+      <span class="english">${opt.english}</span>
+    `;
+    div.addEventListener("click", () => chooseOption(i));
+    optionsBox.appendChild(div);
+  });
+}
+
+function renderDisplay() {
+  displayBox.textContent = tokens.join("");
+}
+
+function setStatus(text) {
+  statusEl.textContent = text;
+}
+
+// ---------- Logic ----------
+function lookupPinyin(pinyin) {
+  return DICTIONARY[pinyin.trim().toLowerCase()] || [];
+}
+
+function commitToken(str) {
+  tokens.push(str);
+  renderDisplay();
+}
+
+function chooseOption(index) {
+  const opt = currentOptions[index];
+  if (!opt) return;
+  commitToken(opt.hanzi);
+
+  mode = "input";
+  currentOptions = [];
+  renderOptions();
+  inputBox.value = "";
+  setStatus("Type pinyin, press Enter to see options.");
+}
+
+function deleteLastWord() {
+  if (tokens.length === 0) return;
+
+  tokens.pop();
+  while (tokens.length > 0 && isPunctuation(tokens[tokens.length - 1])) {
+    tokens.pop();
+  }
+
+  if (mode === "selection") {
+    mode = "input";
+    currentOptions = [];
+    renderOptions();
+    inputBox.value = "";
+    setStatus("Type pinyin, press Enter to see options.");
+  }
+
+  renderDisplay();
+}
+
+// ---------- Events ----------
+inputBox.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+
+  const value = inputBox.value.trim();
+  if (!value) return;
+
+  if (mode === "input") {
+    // English word escape hatch: "word=" commits "word " (with trailing space)
+    if (value.endsWith("=")) {
+      const english = value.slice(0, -1).trim();
+      if (english) {
+        commitToken(english + " ");
+        inputBox.value = "";
+        setStatus("Type pinyin, press Enter to see options.");
+      }
+      return;
+    }
+
+    // Punctuation passes straight through
+    if (isPunctuation(value)) {
+      commitToken(value);
+      inputBox.value = "";
+      setStatus("Type pinyin, press Enter to see options.");
+      return;
+    }
+
+    const results = lookupPinyin(value);
+    if (results.length === 0) {
+      setStatus(`No entry for "${value}". Try another pinyin.`);
+      inputBox.value = "";
+      return;
+    }
+
+    currentOptions = results;
+    renderOptions();
+    mode = "selection";
+    inputBox.value = "";
+    setStatus("Selection mode: type a number and press Enter.");
+    return;
+  }
+
+  if (mode === "selection") {
+    const num = parseInt(value, 10);
+    if (isNaN(num) || num < 1 || num > currentOptions.length) {
+      setStatus(`Please enter a number between 1 and ${currentOptions.length}.`);
+      inputBox.value = "";
+      return;
+    }
+    chooseOption(num - 1);
+    return;
+  }
+});
+
+deleteBtn.addEventListener("click", deleteLastWord);
+
+// ---------- Init ----------
+renderDisplay();
+renderOptions();
+</script>
+
+</body>
+</html>
