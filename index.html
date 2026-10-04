@@ -54,7 +54,7 @@
 </head>
 <body>
     <div id="info">
-        <i>🏠</i> Drag to pan • Scroll to zoom • Click the buildings
+        <i>🏠</i> Drag to pan • Scroll to zoom • Click the buildings & outhouse
     </div>
     <div id="tooltip"></div>
 
@@ -76,7 +76,7 @@
         scene.background = new THREE.Color(0xaaccff);
 
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(10, 8, 18);
+        camera.position.set(10, 9, 22);
         camera.lookAt(0, 2, 0);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -95,7 +95,7 @@
         controls.panSpeed = 0.8;
         controls.maxPolarAngle = Math.PI / 2.2;
         controls.minDistance = 5;
-        controls.maxDistance = 50;
+        controls.maxDistance = 60;
         controls.update();
 
         // --- Lighting ---
@@ -109,7 +109,7 @@
         fillLight.position.set(-10, 8, 12);
         scene.add(fillLight);
 
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.4);
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.5);
         backLight.position.set(0, 8, -20);
         scene.add(backLight);
 
@@ -130,23 +130,20 @@
         scene.add(houseGroup);
 
         const wallColor = 0xf0e6d2;
-        const interiorWallColor = 0xe0d5c0; // slightly different tint so the inner wall is readable
+        const interiorWallColor = 0xe0d5c0;
         const roofColor = 0xb54b3d;
-        const doorColorA = 0x8b5a2b;    // Room A door
-        const doorColorB = 0x6b4a2b;    // Room B door
+        const doorColorA = 0x8b5a2b;
+        const doorColorB = 0x6b4a2b;
         const windowColor = 0xaad4f5;
         const windowFrameColor = 0x6b4f3c;
         const chimneyColor = 0x9e6b5e;
 
-        // Room dimensions
-        const roomWidth = 2.0;      // each room is 2 units wide
+        const roomWidth = 2.0;
         const roomHeight = 2.2;
-        const roomDepth = 4;        // same depth for both
-        const wallThickness = 0.08; // thin interior divider
+        const roomDepth = 4;
+        const wallThickness = 0.08;
+        const totalWidth = roomWidth * 2 + wallThickness;
 
-        const totalWidth = roomWidth * 2 + wallThickness; // overall footprint ~4.08
-
-        // --- Shared outer walls (left, right, back) ---
         // Left outer wall
         const leftWall = makeInteractive(
             new THREE.Mesh(
@@ -171,7 +168,7 @@
         rightWall.position.set(roomWidth + wallThickness / 2, roomHeight / 2, 0);
         houseGroup.add(rightWall);
 
-        // Back wall (spans both rooms)
+        // Back wall
         const backWall = makeInteractive(
             new THREE.Mesh(
                 new THREE.BoxGeometry(totalWidth, roomHeight, wallThickness),
@@ -183,8 +180,7 @@
         backWall.position.set(0, roomHeight / 2, -roomDepth / 2 - wallThickness / 2);
         houseGroup.add(backWall);
 
-        // --- Front walls (with a door gap for each room) ---
-        // Each room's front wall is split into a left segment, right segment, and a lintel above the door.
+        // Front walls with door gaps
         const doorWidth = 0.8;
         const doorHeight = 1.4;
         const frontZ = roomDepth / 2 + wallThickness / 2;
@@ -203,64 +199,22 @@
             return seg;
         }
 
-        // Room A (left) — center at x = -roomWidth/2 = -1
         const roomACenterX = -roomWidth / 2;
-        const sideWidthA = (roomWidth - doorWidth) / 2; // width of each side piece
-        buildFrontWallSegment(
-            roomACenterX - doorWidth / 2 - sideWidthA / 2,
-            sideWidthA,
-            roomHeight / 2,
-            roomHeight,
-            '🏠 Room A Front (Left)'
-        );
-        buildFrontWallSegment(
-            roomACenterX + doorWidth / 2 + sideWidthA / 2,
-            sideWidthA,
-            roomHeight / 2,
-            roomHeight,
-            '🏠 Room A Front (Right)'
-        );
-        // Lintel above Room A's door
-        buildFrontWallSegment(
-            roomACenterX,
-            doorWidth,
-            doorHeight + (roomHeight - doorHeight) / 2,
-            roomHeight - doorHeight,
-            '🏠 Room A Lintel'
-        );
-
-        // Room B (right) — center at x = +roomWidth/2 = +1
         const roomBCenterX = roomWidth / 2;
-        buildFrontWallSegment(
-            roomBCenterX - doorWidth / 2 - sideWidthA / 2,
-            sideWidthA,
-            roomHeight / 2,
-            roomHeight,
-            '🏠 Room B Front (Left)'
-        );
-        buildFrontWallSegment(
-            roomBCenterX + doorWidth / 2 + sideWidthA / 2,
-            sideWidthA,
-            roomHeight / 2,
-            roomHeight,
-            '🏠 Room B Front (Right)'
-        );
-        buildFrontWallSegment(
-            roomBCenterX,
-            doorWidth,
-            doorHeight + (roomHeight - doorHeight) / 2,
-            roomHeight - doorHeight,
-            '🏠 Room B Lintel'
-        );
+        const sideWidthA = (roomWidth - doorWidth) / 2;
 
-        // --- Interior dividing wall (between the two rooms) ---
-        // It runs along the depth, with a doorway connecting the two rooms.
+        buildFrontWallSegment(roomACenterX - doorWidth / 2 - sideWidthA / 2, sideWidthA, roomHeight / 2, roomHeight, '🏠 Room A Front (Left)');
+        buildFrontWallSegment(roomACenterX + doorWidth / 2 + sideWidthA / 2, sideWidthA, roomHeight / 2, roomHeight, '🏠 Room A Front (Right)');
+        buildFrontWallSegment(roomACenterX, doorWidth, doorHeight + (roomHeight - doorHeight) / 2, roomHeight - doorHeight, '🏠 Room A Lintel');
+
+        buildFrontWallSegment(roomBCenterX - doorWidth / 2 - sideWidthA / 2, sideWidthA, roomHeight / 2, roomHeight, '🏠 Room B Front (Left)');
+        buildFrontWallSegment(roomBCenterX + doorWidth / 2 + sideWidthA / 2, sideWidthA, roomHeight / 2, roomHeight, '🏠 Room B Front (Right)');
+        buildFrontWallSegment(roomBCenterX, doorWidth, doorHeight + (roomHeight - doorHeight) / 2, roomHeight - doorHeight, '🏠 Room B Lintel');
+
+        // Interior divider
         const interiorDoorWidth = 0.7;
         const interiorDoorHeight = 1.5;
-        const interiorZ = 0;
-        const interiorX = 0; // centered between rooms
 
-        // Front part of the divider (from front wall to the doorway)
         const dividerFront = makeInteractive(
             new THREE.Mesh(
                 new THREE.BoxGeometry(wallThickness, roomHeight, (roomDepth - interiorDoorWidth) / 2),
@@ -269,14 +223,9 @@
             'https://en.wikipedia.org/wiki/Wall',
             '🧱 Interior Divider (Front)'
         );
-        dividerFront.position.set(
-            interiorX,
-            roomHeight / 2,
-            interiorZ + (roomDepth / 2) - (roomDepth - interiorDoorWidth) / 4
-        );
+        dividerFront.position.set(0, roomHeight / 2, (roomDepth / 2) - (roomDepth - interiorDoorWidth) / 4);
         houseGroup.add(dividerFront);
 
-        // Back part of the divider
         const dividerBack = makeInteractive(
             new THREE.Mesh(
                 new THREE.BoxGeometry(wallThickness, roomHeight, (roomDepth - interiorDoorWidth) / 2),
@@ -285,14 +234,9 @@
             'https://en.wikipedia.org/wiki/Wall',
             '🧱 Interior Divider (Back)'
         );
-        dividerBack.position.set(
-            interiorX,
-            roomHeight / 2,
-            interiorZ - (roomDepth / 2) + (roomDepth - interiorDoorWidth) / 4
-        );
+        dividerBack.position.set(0, roomHeight / 2, -(roomDepth / 2) + (roomDepth - interiorDoorWidth) / 4);
         houseGroup.add(dividerBack);
 
-        // Lintel above the interior doorway
         const dividerLintel = makeInteractive(
             new THREE.Mesh(
                 new THREE.BoxGeometry(wallThickness, roomHeight - interiorDoorHeight, interiorDoorWidth),
@@ -301,17 +245,12 @@
             'https://en.wikipedia.org/wiki/Wall',
             '🧱 Interior Lintel'
         );
-        dividerLintel.position.set(
-            interiorX,
-            interiorDoorHeight + (roomHeight - interiorDoorHeight) / 2,
-            interiorZ
-        );
+        dividerLintel.position.set(0, interiorDoorHeight + (roomHeight - interiorDoorHeight) / 2, 0);
         houseGroup.add(dividerLintel);
 
-        // --- Doors (one for each room, on the front) ---
+        // Doors
         const doorDepth = 0.12;
 
-        // Room A door
         const doorA = makeInteractive(
             new THREE.Mesh(
                 new THREE.BoxGeometry(doorWidth, doorHeight, doorDepth),
@@ -323,7 +262,6 @@
         doorA.position.set(roomACenterX, doorHeight / 2, frontZ + doorDepth / 2 - 0.02);
         houseGroup.add(doorA);
 
-        // Room A handle
         const handleA = makeInteractive(
             new THREE.Mesh(
                 new THREE.SphereGeometry(0.06, 8, 8),
@@ -335,7 +273,6 @@
         handleA.position.set(roomACenterX + 0.28, doorHeight / 2, frontZ + doorDepth + 0.02);
         houseGroup.add(handleA);
 
-        // Room B door
         const doorB = makeInteractive(
             new THREE.Mesh(
                 new THREE.BoxGeometry(doorWidth, doorHeight, doorDepth),
@@ -347,7 +284,6 @@
         doorB.position.set(roomBCenterX, doorHeight / 2, frontZ + doorDepth / 2 - 0.02);
         houseGroup.add(doorB);
 
-        // Room B handle
         const handleB = makeInteractive(
             new THREE.Mesh(
                 new THREE.SphereGeometry(0.06, 8, 8),
@@ -359,7 +295,7 @@
         handleB.position.set(roomBCenterX + 0.28, doorHeight / 2, frontZ + doorDepth + 0.02);
         houseGroup.add(handleB);
 
-        // --- Roof (covers both rooms as one structure) ---
+        // Roof
         const roofHeight = 1.7;
         const roofRadius = Math.sqrt(2) * (totalWidth / 2) * 1.02;
         const roof = makeInteractive(
@@ -374,7 +310,7 @@
         roof.rotation.y = Math.PI / 4;
         houseGroup.add(roof);
 
-        // --- Windows (a couple, one on each room's front-upper area) ---
+        // Windows
         function createHouseWindow(posX, posY, posZ, rotationY = 0, label) {
             const windowGroup = new THREE.Group();
             const w = 0.6, h = 0.6, d = 0.1;
@@ -402,23 +338,12 @@
             return windowGroup;
         }
 
-        // Side windows (one per room, on the left and right outer walls)
-        houseGroup.add(createHouseWindow(
-            -roomWidth - wallThickness / 2 - 0.02, 1.5, 0, Math.PI / 2, '🪟 Room A Side Window'
-        ));
-        houseGroup.add(createHouseWindow(
-            roomWidth + wallThickness / 2 + 0.02, 1.5, 0, -Math.PI / 2, '🪟 Room B Side Window'
-        ));
+        houseGroup.add(createHouseWindow(-roomWidth - wallThickness / 2 - 0.02, 1.5, 0, Math.PI / 2, '🪟 Room A Side Window'));
+        houseGroup.add(createHouseWindow(roomWidth + wallThickness / 2 + 0.02, 1.5, 0, -Math.PI / 2, '🪟 Room B Side Window'));
+        houseGroup.add(createHouseWindow(roomACenterX, 1.9, frontZ + 0.06, 0, '🪟 Room A Upper Window'));
+        houseGroup.add(createHouseWindow(roomBCenterX, 1.9, frontZ + 0.06, 0, '🪟 Room B Upper Window'));
 
-        // Upper front windows (one per room, above the doors — small dormer-style)
-        houseGroup.add(createHouseWindow(
-            roomACenterX, 1.9, frontZ + 0.06, 0, '🪟 Room A Upper Window'
-        ));
-        houseGroup.add(createHouseWindow(
-            roomBCenterX, 1.9, frontZ + 0.06, 0, '🪟 Room B Upper Window'
-        ));
-
-        // --- Chimney (one, on Room B side) ---
+        // Chimney
         const chimney = makeInteractive(
             new THREE.Mesh(
                 new THREE.BoxGeometry(0.5, 1.0, 0.5),
@@ -459,7 +384,6 @@
         const uniWallHeight = 3.6;
         const uniWallDepth = 4;
 
-        // University main walls
         const uniWalls = makeInteractive(
             new THREE.Mesh(
                 new THREE.BoxGeometry(uniWallWidth, uniWallHeight, uniWallDepth),
@@ -471,7 +395,6 @@
         uniWalls.position.y = uniWallHeight / 2;
         uniGroup.add(uniWalls);
 
-        // University roof
         const uniRoof = makeInteractive(
             new THREE.Mesh(
                 new THREE.ConeGeometry(Math.sqrt(2) * (uniWallWidth / 2) * 1.08, 1.0, 4),
@@ -484,11 +407,9 @@
         uniRoof.rotation.y = Math.PI / 4;
         uniGroup.add(uniRoof);
 
-        // University entrance columns
         const columnGeo = new THREE.CylinderGeometry(0.15, 0.15, uniWallHeight, 10);
         const columnMat = new THREE.MeshStandardMaterial({ color: uniColumnColor, roughness: 0.6 });
-        const columnPositions = [-1.6, -0.55, 0.55, 1.6];
-        columnPositions.forEach((x) => {
+        [-1.6, -0.55, 0.55, 1.6].forEach((x) => {
             const col = makeInteractive(
                 new THREE.Mesh(columnGeo, columnMat),
                 'https://en.wikipedia.org/wiki/Column',
@@ -498,7 +419,6 @@
             uniGroup.add(col);
         });
 
-        // University pediment
         const pediment = makeInteractive(
             new THREE.Mesh(
                 new THREE.BoxGeometry(3.6, 0.5, 0.4),
@@ -510,7 +430,6 @@
         pediment.position.set(0, uniWallHeight - 0.25, uniWallDepth / 2 + 0.2);
         uniGroup.add(pediment);
 
-        // University main door
         const uniDoor = makeInteractive(
             new THREE.Mesh(
                 new THREE.BoxGeometry(1.2, 1.8, 0.15),
@@ -522,7 +441,6 @@
         uniDoor.position.set(0, 0.9, uniWallDepth / 2 + 0.08);
         uniGroup.add(uniDoor);
 
-        // University door handle
         const uniHandle = makeInteractive(
             new THREE.Mesh(
                 new THREE.SphereGeometry(0.07, 8, 8),
@@ -534,7 +452,6 @@
         uniHandle.position.set(0.4, 0.95, uniWallDepth / 2 + 0.2);
         uniGroup.add(uniHandle);
 
-        // University windows helper
         function createUniWindow(posX, posY, posZ, rotationY = 0) {
             const windowGroup = new THREE.Group();
             const w = 0.7, h = 0.7, d = 0.08;
@@ -543,18 +460,18 @@
                 new THREE.BoxGeometry(w, h, d),
                 new THREE.MeshStandardMaterial({ color: uniWindowColor, emissive: 0x112233, transparent: true, opacity: 0.85 })
             );
-            makeInteractive(glass, 'https://en.wikipedia.org/wiki/Window', '🪟 University Window');
+            makeInteractive(glass, 'https://www.notion.so/Registry-of-Physis-Pistidos-University-1f2936a26e6380ab9f6bc314fb3c011d', '🪟 University Window');
             windowGroup.add(glass);
 
             const barMat = new THREE.MeshStandardMaterial({ color: uniWindowFrameColor });
             const hBar = new THREE.Mesh(new THREE.BoxGeometry(w + 0.06, 0.05, d + 0.02), barMat);
             hBar.position.z = 0.01;
-            makeInteractive(hBar, 'https://en.wikipedia.org/wiki/Window', '🪟 University Window');
+            makeInteractive(hBar, 'https://www.notion.so/Registry-of-Physis-Pistidos-University-1f2936a26e6380ab9f6bc314fb3c011d', '🪟 University Window');
             windowGroup.add(hBar);
 
             const vBar = new THREE.Mesh(new THREE.BoxGeometry(0.05, h + 0.06, d + 0.02), barMat);
             vBar.position.z = 0.01;
-            makeInteractive(vBar, 'https://en.wikipedia.org/wiki/Window', '🪟 University Window');
+            makeInteractive(vBar, 'https://www.notion.so/Registry-of-Physis-Pistidos-University-1f2936a26e6380ab9f6bc314fb3c011d', '🪟 University Window');
             windowGroup.add(vBar);
 
             windowGroup.position.set(posX, posY, posZ);
@@ -562,19 +479,15 @@
             return windowGroup;
         }
 
-        // Front upper windows
         uniGroup.add(createUniWindow(-1.6, 2.8, uniWallDepth / 2 + 0.02, 0));
         uniGroup.add(createUniWindow(-0.55, 2.8, uniWallDepth / 2 + 0.02, 0));
         uniGroup.add(createUniWindow(0.55, 2.8, uniWallDepth / 2 + 0.02, 0));
         uniGroup.add(createUniWindow(1.6, 2.8, uniWallDepth / 2 + 0.02, 0));
-
-        // Side windows
         uniGroup.add(createUniWindow(uniWallWidth / 2 + 0.02, 2.8, -0.8, Math.PI / 2));
         uniGroup.add(createUniWindow(uniWallWidth / 2 + 0.02, 2.8, 0.8, Math.PI / 2));
         uniGroup.add(createUniWindow(-uniWallWidth / 2 - 0.02, 2.8, -0.8, -Math.PI / 2));
         uniGroup.add(createUniWindow(-uniWallWidth / 2 - 0.02, 2.8, 0.8, -Math.PI / 2));
 
-        // University cupola
         const cupola = makeInteractive(
             new THREE.Mesh(
                 new THREE.CylinderGeometry(0.5, 0.6, 1.0, 8),
@@ -598,17 +511,220 @@
         uniGroup.add(cupolaRoof);
 
         // ============================================================
-        //  GROUND (no grid)
+        //  OUTHOUSE  (behind the house) — NO OUTER WALLS
+        // ============================================================
+        const outhouseGroup = new THREE.Group();
+        outhouseGroup.position.set(-4.5, 0, -6.5);
+        outhouseGroup.rotation.y = Math.PI * 0.05;
+        scene.add(outhouseGroup);
+
+        const outRoofColor = 0x6b4a3a;
+        const outDoorColor = 0x7a5a3a;
+        const outPostColor = 0xa89070;
+
+        const outW = 3.0;
+        const outH = 2.0;
+        const outD = 3.0;
+        const postThickness = 0.1;
+
+        // Floor plate
+        const outFloor = makeInteractive(
+            new THREE.Mesh(
+                new THREE.BoxGeometry(outW, 0.05, outD),
+                new THREE.MeshStandardMaterial({ color: 0x9e8a70, roughness: 0.9 })
+            ),
+            'https://en.wikipedia.org/wiki/Outhouse',
+            '🚽 Outhouse Floor'
+        );
+        outFloor.position.y = 0.025;
+        outhouseGroup.add(outFloor);
+
+        // Four corner posts
+        const postGeo = new THREE.BoxGeometry(postThickness, outH, postThickness);
+        const postMat = new THREE.MeshStandardMaterial({ color: outPostColor, roughness: 0.85 });
+        const cornerPositions = [
+            [-outW / 2, outH / 2, -outD / 2],
+            [ outW / 2, outH / 2, -outD / 2],
+            [-outW / 2, outH / 2,  outD / 2],
+            [ outW / 2, outH / 2,  outD / 2]
+        ];
+        cornerPositions.forEach(([px, py, pz]) => {
+            const post = makeInteractive(
+                new THREE.Mesh(postGeo, postMat),
+                'https://en.wikipedia.org/wiki/Outhouse',
+                '🚽 Outhouse Post'
+            );
+            post.position.set(px, py, pz);
+            outhouseGroup.add(post);
+        });
+
+        // Doorway frame
+        const outDoorWidth = 1.0;
+        const outDoorHeight = 1.7;
+
+        const frameLeft = makeInteractive(
+            new THREE.Mesh(
+                new THREE.BoxGeometry(0.08, outDoorHeight, 0.1),
+                new THREE.MeshStandardMaterial({ color: outPostColor, roughness: 0.85 })
+            ),
+            'https://en.wikipedia.org/wiki/Outhouse',
+            '🚽 Door Frame (Left)'
+        );
+        frameLeft.position.set(-outDoorWidth / 2, outDoorHeight / 2, outD / 2);
+        outhouseGroup.add(frameLeft);
+
+        const frameRight = makeInteractive(
+            new THREE.Mesh(
+                new THREE.BoxGeometry(0.08, outDoorHeight, 0.1),
+                new THREE.MeshStandardMaterial({ color: outPostColor, roughness: 0.85 })
+            ),
+            'https://en.wikipedia.org/wiki/Outhouse',
+            '🚽 Door Frame (Right)'
+        );
+        frameRight.position.set(outDoorWidth / 2, outDoorHeight / 2, outD / 2);
+        outhouseGroup.add(frameRight);
+
+        const frameLintel = makeInteractive(
+            new THREE.Mesh(
+                new THREE.BoxGeometry(outDoorWidth + 0.16, 0.1, 0.1),
+                new THREE.MeshStandardMaterial({ color: outPostColor, roughness: 0.85 })
+            ),
+            'https://en.wikipedia.org/wiki/Outhouse',
+            '🚽 Door Lintel'
+        );
+        frameLintel.position.set(0, outDoorHeight + 0.05, outD / 2);
+        outhouseGroup.add(frameLintel);
+
+        // Outhouse door
+        const outDoor = makeInteractive(
+            new THREE.Mesh(
+                new THREE.BoxGeometry(outDoorWidth, outDoorHeight, 0.08),
+                new THREE.MeshStandardMaterial({ color: outDoorColor, roughness: 0.85 })
+            ),
+            'work/index.html',
+            '🚪 Outhouse Door'
+        );
+        outDoor.position.set(0, outDoorHeight / 2, outD / 2 + 0.06);
+        outhouseGroup.add(outDoor);
+
+        // Outhouse roof
+        const outRoof = makeInteractive(
+            new THREE.Mesh(
+                new THREE.ConeGeometry(Math.sqrt(2) * (outW / 2) * 1.05, 0.9, 4),
+                new THREE.MeshStandardMaterial({ color: outRoofColor, roughness: 0.7, flatShading: true })
+            ),
+            'https://en.wikipedia.org/wiki/Roof',
+            '🏘️ Outhouse Roof'
+        );
+        outRoof.position.y = outH + 0.45;
+        outRoof.rotation.y = Math.PI / 4;
+        outhouseGroup.add(outRoof);
+
+        // ============================================================
+        //  TABLES INSIDE THE OUTHOUSE
+        // ============================================================
+
+        // --- TABLE 1: WITH TWO SCROLLS (clickable) ---
+        const tableGroup1 = new THREE.Group();
+        tableGroup1.position.set(-0.7, 0, 0.4);
+        outhouseGroup.add(tableGroup1);
+
+        const tableTopColor = 0x8b6b4a;
+        const tableLegColor = 0x5a3f2a;
+
+        const table1Top = makeInteractive(
+            new THREE.Mesh(
+                new THREE.BoxGeometry(1.0, 0.08, 0.7),
+                new THREE.MeshStandardMaterial({ color: tableTopColor, roughness: 0.75 })
+            ),
+            'https://en.wikipedia.org/wiki/Table_(furniture)',
+            '🪑 Table (with scrolls)'
+        );
+        table1Top.position.y = 0.7;
+        tableGroup1.add(table1Top);
+
+        const legGeo = new THREE.BoxGeometry(0.08, 0.7, 0.08);
+        const legMat = new THREE.MeshStandardMaterial({ color: tableLegColor, roughness: 0.85 });
+        const legOffsets = [
+            [-0.42, 0.35, -0.27],
+            [ 0.42, 0.35, -0.27],
+            [-0.42, 0.35,  0.27],
+            [ 0.42, 0.35,  0.27]
+        ];
+        legOffsets.forEach(([lx, ly, lz]) => {
+            const leg = new THREE.Mesh(legGeo, legMat);
+            leg.position.set(lx, ly, lz);
+            tableGroup1.add(leg);
+        });
+
+        // --- TWO INDIVIDUALLY CLICKABLE SCROLLS ---
+        // Each scroll is a single mesh (a horizontally-oriented cylinder),
+        // so clicking it unambiguously hits that scroll. One is black,
+        // one is white, and each opens its own URL.
+
+        // BLACK SCROLL — left position on the table
+        const blackScroll = makeInteractive(
+            new THREE.Mesh(
+                new THREE.CylinderGeometry(0.07, 0.07, 0.5, 12),
+                new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.6 })
+            ),
+            'old_mandarin/index.html',
+            '📜 Earth Scroll'
+        );
+        // Rotate to lie horizontally along X
+        blackScroll.rotation.z = Math.PI / 2;
+        blackScroll.rotation.y = 0.2; // small turn for natural look
+        blackScroll.position.set(-0.22, 0.78, 0.0);
+        tableGroup1.add(blackScroll);
+
+        // WHITE SCROLL — right position on the table
+        const whiteScroll = makeInteractive(
+            new THREE.Mesh(
+                new THREE.CylinderGeometry(0.07, 0.07, 0.5, 12),
+                new THREE.MeshStandardMaterial({ color: 0xf5f0e6, roughness: 0.7 })
+            ),
+            'mandarin/index.html',
+            '📜 Heaven Scroll'
+        );
+        whiteScroll.rotation.z = Math.PI / 2;
+        whiteScroll.rotation.y = -0.15;
+        whiteScroll.position.set(0.22, 0.78, 0.0);
+        tableGroup1.add(whiteScroll);
+
+        // --- TABLE 2: EMPTY (clickable) ---
+        const tableGroup2 = new THREE.Group();
+        tableGroup2.position.set(0.7, 0, -0.5);
+        outhouseGroup.add(tableGroup2);
+
+        const table2Top = makeInteractive(
+            new THREE.Mesh(
+                new THREE.BoxGeometry(1.0, 0.08, 0.7),
+                new THREE.MeshStandardMaterial({ color: 0x7a5f45, roughness: 0.8 })
+            ),
+            'https://en.wikipedia.org/wiki/Table_(furniture)',
+            '🪑 Empty Table'
+        );
+        table2Top.position.y = 0.7;
+        tableGroup2.add(table2Top);
+
+        legOffsets.forEach(([lx, ly, lz]) => {
+            const leg = new THREE.Mesh(legGeo, legMat);
+            leg.position.set(lx, ly, lz);
+            tableGroup2.add(leg);
+        });
+
+        // ============================================================
+        //  GROUND
         // ============================================================
         const ground = new THREE.Mesh(
-            new THREE.CircleGeometry(30, 64),
+            new THREE.CircleGeometry(40, 64),
             new THREE.MeshStandardMaterial({ color: 0x6b8e4c, roughness: 0.95, side: THREE.DoubleSide })
         );
         ground.rotation.x = -Math.PI / 2;
         ground.position.y = -0.01;
         scene.add(ground);
 
-        // Plaza between the two buildings
+        // Plaza between house & university
         const plaza = new THREE.Mesh(
             new THREE.CircleGeometry(3, 32),
             new THREE.MeshStandardMaterial({ color: 0xc8bca8, roughness: 0.9 })
@@ -616,6 +732,15 @@
         plaza.rotation.x = -Math.PI / 2;
         plaza.position.set(0.5, 0, 2);
         scene.add(plaza);
+
+        // Small path from house to outhouse
+        const path = new THREE.Mesh(
+            new THREE.PlaneGeometry(1.0, 2.5),
+            new THREE.MeshStandardMaterial({ color: 0xb0a890, roughness: 0.9 })
+        );
+        path.rotation.x = -Math.PI / 2;
+        path.position.set(-4.5, 0.005, -4.0);
+        scene.add(path);
 
         // ============================================================
         //  RAYCASTING FOR CLICKS & HOVER
@@ -635,7 +760,6 @@
             return intersects.length > 0 ? intersects[0].object : null;
         }
 
-        // Hover
         renderer.domElement.addEventListener('pointermove', (event) => {
             updatePointer(event);
 
@@ -658,7 +782,6 @@
             }
         });
 
-        // Click detection
         let pointerDownPos = { x: 0, y: 0 };
         let pointerDownTime = 0;
 
