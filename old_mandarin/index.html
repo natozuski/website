@@ -83,6 +83,24 @@
   }
   #deleteBtn:hover { background: #f0f0f0; }
 
+  .links {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .links a {
+    padding: 8px 14px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+  }
+  .links a:hover { background: #f0f0f0; }
+
   .hidden { display: none; }
 </style>
 </head>
@@ -103,10 +121,16 @@
   autofocus
 />
 
+<div class="links">
+  <a href="1_cat2_verbs_sorted.json" target="_blank" rel="noopener noreferrer">Verbs</a>
+  <a href="2_cat1_nouns_adj_pron_sorted.json" target="_blank" rel="noopener noreferrer">Nouns/Adj/Pron</a>
+  <a href="3_cat3_function_words_sorted.json" target="_blank" rel="noopener noreferrer">Function Words</a>
+</div>
+
 <!-- ===== Pick ONE of these three lines ===== -->
 <!-- <script src="dictionary.js"></script> -->
 <!-- <script src="test-dictionary.js"></script> -->
-<script src="corpus-dictionary.js"></script>
+<script src="alphabet_dictionary.js"></script>
 
 <script>
 // Pull the dictionary from whichever file was loaded above.
