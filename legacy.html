@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>nathanielozuski.com</title>
+  <meta 
+    name="viewport" 
+    content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta 
+    name="keywords"
+    content="Nathaniel, Ozuski, Oluwaseun, Oshunniyi">
+  <meta
+    name="description"
+    content="Artist">
+  <meta
+    name="author"
+    content="Nathaniel Oshunniyi">
+  <meta 
+    http-equiv="content-type" 
+    content="text/html; charset=UTF-8">
+  <link rel="icon" href="content/premierball.png">
+  <link rel="apple-touch-icon" href="content/premierball.png">
+  <link rel="stylesheet" href="content/css/cube.css" type="text/css">
+  <link rel="stylesheet" href="content/css/style.css" type="text/css">
+  <script type="text/javascript" src="content/js/fades.js"></script>
+  <!-- external resources -->
+  <script 
+    src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
+  </script>
+</head>
+<body onload="fadeIn(1)">
+  
+  <div class="page">
+    <div class="title">
+      <a title="me">
+      <img id="face" alt-text="me" src="./content/face-ass.jpg"></img>
+      <h1 id="dotcom">nathaniel ozuski</h1>
+      </a>
+    </div>
+    <div class="navigation">
+      <a title="money & finance" href="https://fund.nathanielozuski.com">fund</a> - 
+      <a title="learn more about nathaniel ozuski" href="https://about.nathanielozuski.com" style="font-style: italic;">about</a> -
+      <a title="personal blog" href="https://blog.nathanielozuski.com">blog</a>
+    </div>
+  </div>
+  <div class="stage">
+    <div class="cubespinner">
+      <div class="face1"></div>
+      <div class="face2"></div>
+      <div class="face3"></div>
+      <div class="face4"></div>
+      <div class="face5"></div>
+      <div class="face6"></div>
+    </div>
+  </div>
+  
+  <!-- spook -->
+  <script>
+  function ipLookUp () {
+   $.ajax({
+          url: 'https://ipinfo.io',
+          dataType: 'jsonp',       
+          jsonp: 'callback',
+      })
+    .then(
+        function success(response) {
+           $("#city").html("your location is " + response.city);
+            $("#country").html(response.country);
+             $("#location").html(response.timezone);
+              $("#ip").html("ip: " + response.ip);
+           console.log(response.city, response.country,response.timezone, response.ip);
+
+        },
+
+        function fail(data, status) {
+            console.log('Request failed.  Returned status of',
+                        status);
+        }
+    );
+  }
+  ipLookUp()
+  document.getElementById('UserAgent').value = navigator.userAgent;
+  </script>
+</body>
+</html>
